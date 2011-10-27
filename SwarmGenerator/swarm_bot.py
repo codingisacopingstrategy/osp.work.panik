@@ -3,7 +3,7 @@
 import os
 
 # PATH = "/tmp/panik"
-PATH = os.path.join(os.getcwd(), 'example_imgs')
+PATH = os.path.join("/home/e/Dropbox/osp/osp.work.panik/SwarmGenerator", 'converted_example_imgs')
 imgs = [os.path.join(PATH, i) for i in os.listdir(PATH)]
 
 from random import random
