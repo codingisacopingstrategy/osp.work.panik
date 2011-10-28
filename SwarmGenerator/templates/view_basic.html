@@ -2,7 +2,12 @@
 <meta charset="utf-8">
 <ul>
   {% for page in members %}
-  <li><a href="/{{ page.title }}">{{ page.title }}</a></li>
+  <li><a href="/{{ page.title|urlencode }}">{{ page.title }}</a></li>
   {% endfor %}
-<ul>
+</ul>
+
+{% if files %}
+<p>{{ files|length }} files!</p>
+<p><a href="/{{ category }}.svg">Generate SVG!</a></p>
+{% endif %}
 </html>
