@@ -7,7 +7,7 @@ import os
 import json
 import urllib2
 from urllib import quote
-from flask import Flask, render_template, send_file
+from flask import Flask, request, render_template, send_file
 from retrieve import retrieve_category
 from swarm_bot import swarm_bot
 from convert_images import convert_images
@@ -50,14 +50,19 @@ def get_uris(category):
             pass
     return uris
 
-@app.route("/<category>.svg")
+@app.route("/<category>.svg", methods=['GET', 'POST'])
 def generate(category):
+    colour = "000000"
+    text = None
+    if request.method == 'POST':
+        colour = request.form['colour']
+        text = request.form['text']
     uris = get_uris(category)
     if len(uris) > 32:
         uris = uris[:32]
     retrieve_category(category, uris)
-    convert_images(category)
-    swarm_bot(category)
+    convert_images(category, colour=colour)
+    swarm_bot(category, text=text)
     return send_file(os.path.join(PATH, "%s.svg" % quote(category)))
 
 @app.route("/")

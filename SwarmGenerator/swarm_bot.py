@@ -9,7 +9,7 @@ from shoebot.core import CairoCanvas, CairoImageSink, NodeBot
 
 PATH = os.path.join('/', 'tmp','panik')
 
-def swarm_bot(category):
+def swarm_bot(category, text=None):
     category = quote(category)
     images_folder = os.path.join(PATH, category)
     output_image = os.path.join(PATH, "%s.svg" % category)

@@ -1,5 +1,13 @@
 <html>
 <meta charset="utf-8">
+<link rel="stylesheet" href="/static/farbtastic.css" />
+<script src="/static/jquery.min.js"></script>
+<script src="/static/farbtastic.js"></script>
+<script>
+  $(function() {
+    $('#picker').farbtastic('#colour');
+  });
+</script>
 <ul>
   {% for page in members %}
   <li><a href="/{{ page.title|urlencode }}">{{ page.title }}</a></li>
@@ -8,6 +16,11 @@
 
 {% if files %}
 <p>{{ files|length }} files!</p>
-<p><a href="/{{ category }}.svg">Generate SVG!</a></p>
+<form action="/{{ category }}.svg" method="post">
+    <p><input type="text" id="colour" name="colour" value="#000000"></p>
+    <div id="picker"></div>
+    <p><input type="text" name="text"></p>
+    <p><input type="submit" value="Generate SVG!"></p>
+</form>
 {% endif %}
 </html>
