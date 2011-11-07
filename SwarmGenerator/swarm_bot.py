@@ -32,9 +32,14 @@ def swarm_bot(category, text=None):
     
     if text:
         bot.align(bot.RIGHT)
+        bot.font("Reglo")
         bot.fontsize(36)
-        twidth, theight = bot.textmetrics(text, 392)
-        bot.text(text, 20, HEIGHT - theight + 7.2, 392)
+        otwidth, theight = bot.textmetrics(text, 392)
+        twidth = 200.0
+        factor = twidth / otwidth
+        bot.scale(factor, 1)
+        bot.text(text, (1 / factor) * 192 + (1 / factor) * 20, HEIGHT - theight + 7.2 )
+        bot.reset()
         bot.nofill()
         bot.stroke(0)
         bot.strokewidth(17)
@@ -43,11 +48,21 @@ def swarm_bot(category, text=None):
         bot.lineto(WIDTH - 10, HEIGHT - 10)
         bot.lineto(WIDTH - twidth - 30, HEIGHT - 10)
         bot.endpath()
-
+    
     for i in range(0, upto):
         bot.image(imgs[i], points[i][0] * scale * random(), points[i][1] * scale)
     
     bot._canvas.flush(frame=0)
 
 if __name__ == "__main__":
-    swarm_bot("Category:Clothing_illustrations", text="PANIK")
+    from get_category_members import get_uris
+    from retrieve import retrieve_category
+    from convert_images import convert_images
+    
+    category = "Category:Clothing_illustrations"
+    uris = get_uris(category)
+    if len(uris) > 32:
+        uris = uris[:32]
+    retrieve_category(category, uris)
+    convert_images(category, colour="#fd297e")
+    swarm_bot(category, text="PANIK!")
