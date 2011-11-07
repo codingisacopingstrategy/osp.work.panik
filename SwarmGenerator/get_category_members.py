@@ -31,11 +31,14 @@ def display(category):
     response=make_api_query(category)
     members = []
     files = []
-    for i in response['query']['pages'].values():
+    try:
+      for i in response['query']['pages'].values():
         if 'Category' in i['title']:
             members.append(i)
         elif 'File' in i['title'] and 'jpg' in i['imageinfo'][0]['url']:
             files.append(i)
+    except:
+	    pass
     return render_template('view_basic.html', members=members, files=files, category=category)
 
 def get_uris(category):
@@ -53,17 +56,21 @@ def get_uris(category):
 @app.route("/<category>.svg", methods=['GET', 'POST'])
 def generate(category):
     colour = "000000"
-    text = None
+    text_data = None
     if request.method == 'POST':
         colour = request.form['colour']
-        text = request.form['text']
+        text_data = request.form['text']
     uris = get_uris(category)
     if len(uris) > 32:
         uris = uris[:32]
     retrieve_category(category, uris)
     convert_images(category, colour=colour)
-    swarm_bot(category, text=text)
-    return send_file(os.path.join(PATH, "%s.svg" % quote(category)))
+    swarm_bot(category, text=text_data)
+    file_path = os.path.join(PATH, "%s.svg" % quote(category))
+    #TODO: Should log the data
+    #print(file_path)
+
+    return send_file(file_path)
 
 @app.route("/")
 def hello():
