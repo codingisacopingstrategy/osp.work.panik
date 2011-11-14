@@ -7,7 +7,7 @@ import os
 import json
 import urllib2
 from urllib import quote
-from flask import Flask, request, render_template, send_file
+from flask import Flask, request, render_template, send_file, make_response
 from retrieve import retrieve_category
 from swarm_bot import swarm_bot
 from convert_images import convert_images
@@ -23,7 +23,8 @@ app.jinja_env.filters['urlencode'] = urlencode
 def make_api_query(category, q_continue=""):
     url = 'http://commons.wikimedia.org/w/api.php?action=query&generator=categorymembers&gcmtitle=' + quote(category) + '&gcmlimit=500&prop=imageinfo&iiprop=url&iiurlwidth=120&format=json'
     response = json.loads(urllib2.urlopen(url).read())
-    response['url'] = url
+    if response:
+        response['url'] = url
     return response
 
 @app.route("/<category>")
@@ -31,6 +32,8 @@ def display(category):
     response=make_api_query(category)
     members = []
     files = []
+    if not response:
+        return make_response("Page not found, 404", 404)
     try:
       for i in response['query']['pages'].values():
         if 'Category' in i['title']:
@@ -38,7 +41,7 @@ def display(category):
         elif 'File' in i['title'] and 'jpg' in i['imageinfo'][0]['url']:
             files.append(i)
     except:
-	    pass
+        pass
     return render_template('view_basic.html', members=members, files=files, category=category)
 
 def get_uris(category):
