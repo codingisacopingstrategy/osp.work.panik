@@ -1,26 +1,61 @@
+<!DOCTYPE html>
 <html>
-<meta charset="utf-8">
-<link rel="stylesheet" href="/static/farbtastic.css" />
-<script src="/static/jquery.min.js"></script>
-<script src="/static/farbtastic.js"></script>
-<script>
-  $(function() {
-    $('#picker').farbtastic('#colour');
-  });
-</script>
-<ul>
-  {% for page in members %}
-  <li><a href="/{{ page.title|urlencode }}">{{ page.title }}</a></li>
-  {% endfor %}
-</ul>
+  <meta charset="utf-8">
+  <link rel="stylesheet" href="/static/bootstrap.min.css">
+  <link rel="stylesheet" href="/static/farbtastic.css" />
+  <script src="/static/jquery.min.js"></script>
+  <script src="/static/farbtastic.js"></script>
+  <script>
+    $(function() {
+      $('#picker').farbtastic('#colour');
+      // Only expose paper size when poster is selected: 
+      $("#mediatype").change(function() {
+          if ($("#mediatype option:selected").attr('value') == "poster") {
+              $("#papersize").attr('disabled', false);
+          } else {
+              $("#papersize").attr('disabled', true);
+          }
+      });
+    });
+  </script>
 
-{% if files %}
-<p>{{ files|length }} files!</p>
-<form action="/{{ category }}.svg" method="post">
+<h1><a href="/">Radio Panik</a> :: {{ category }}</h1>
+<div class="row">
+  {% if members %}
+  <div class="span{% if members and files %}6{% else %}16{% endif %}">
+    <h2>Sub categories</h2>
+    <ul>
+      {% for page in members %}
+      <li><a href="/{{ page.title|urlencode }}">{{ page.title }}</a></li>
+      {% endfor %}
+    </ul>
+  </div>
+  {% endif %}
+
+  {% if files %}
+  <div class="span{% if members and files %}10{% else %}16{% endif %}">
+  <h2>Generate Panik Imagery<h2>
+  <p>{{ files|length }} files!</p>
+  <form action="/{{ category }}.svg" method="post">
+    <p>Select Colour:</p>
     <p><input type="text" id="colour" name="colour" value="#000000"></p>
     <div id="picker"></div>
-    <p><input type="text" name="text"></p>
+    <p>Input Text:</p>
+    <p><textarea name="text" id="txt" class="large" rows="7"></textarea></p>
+    <p>Type of graphic:</p>
+    <select id="mediatype" name="mediatype">
+      <option value="cd">CD Booklet</option>
+      <option value="poster">Poster</option>
+    </select><br />
+    <p>Size:</p>
+    <select id="papersize" name="papersize" disabled="disabled">
+      <option value="a2">A2</option>
+      <option value="a3">A3</option>
+      <option value="a4">A4</option>
+      <option value="a5">A5</option>
+    </select>
     <p><input type="submit" value="Generate SVG!"></p>
-</form>
-{% endif %}
+  </form>
+  </div>
+  {% endif %}
 </html>
