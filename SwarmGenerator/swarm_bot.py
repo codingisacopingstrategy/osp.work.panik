@@ -1,4 +1,4 @@
-# This needs to be run in shoebot
+#!/usr/bin/env python
 
 import os
 import shoebot
@@ -29,23 +29,21 @@ def swarm_bot(output_image, images, text=None):
     bot.background(None)
     
     if text:
-        bot.align(bot.RIGHT)
-        bot.font("Reglo")
-        bot.fontsize(36)
-        otwidth, theight = bot.textmetrics(text, 392)
-        twidth = 200.0
-        factor = twidth / otwidth
-        bot.scale(factor, 1)
-        bot.text(text, (1 / factor) * 192 + (1 / factor) * 20, HEIGHT - theight + 7.2 )
-        bot.reset()
-        bot.nofill()
-        bot.stroke(0)
-        bot.strokewidth(17)
-        bot.beginpath(WIDTH - twidth - 30, HEIGHT - theight - 30 )
-        bot.lineto(WIDTH - 10, HEIGHT - theight - 30)
-        bot.lineto(WIDTH - 10, HEIGHT - 10)
-        bot.lineto(WIDTH - twidth - 30, HEIGHT - 10)
-        bot.endpath()
+        texts = text.split("\n")
+        nlines = len(texts)
+        lineheight = HEIGHT / nlines
+        
+        for i, text in enumerate(texts):
+            bot.align(bot.CENTER)
+            bot.font("Reglo")
+            bot.fontsize(lineheight / 1.2)
+            otwidth, theight = bot.textmetrics(text)
+            twidth = WIDTH * 0.9
+            factor = twidth / float(otwidth)
+            bot.scale(factor, 1)
+            bot.text(text, (1 / factor) * WIDTH * 0.05, lineheight * i + lineheight / 1.2 )
+            bot.reset()
+        
     
     for i in range(0, upto):
         bot.image(imgs[i], points[i][0] * scale * random(), points[i][1] * scale)
