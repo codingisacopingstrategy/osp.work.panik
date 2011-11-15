@@ -7,7 +7,10 @@ import ImageOps
 from urllib import quote
 
 def convert_image(img_file, colour=(0,0,0,255)):
-    im = Image.open(img_file)
+    try:
+        im = Image.open(img_file)
+    except IOError:
+        return None
     im = im.convert("1")
     im = im.convert("RGBA")
     pixdata = im.load()
@@ -26,21 +29,23 @@ def convert_image(img_file, colour=(0,0,0,255)):
             else:
                 pixdata[x,y] = colour
 
-    im.save(img_file.replace('jpg','png'))
+    output_name = img_file.replace('jpg','png')
+    im.save(output_name)
+    return output_name
 
-def convert_images(category, colour=(0,0,0,255)):
-    category = quote(category)
-    PATH = os.path.join('/', 'tmp','panik')
-    images_folder = os.path.join(PATH, category)
-    imgs = [os.path.join(images_folder, i) for i in os.listdir(images_folder) if 'jpg' in i]
+def convert_images(imgs, colour=(0,0,0,255)):
+    converted_images = []
     for img in imgs:
-        convert_image(img, colour)
+        converted_images.append(convert_image(img, colour))
+    return [i for i in converted_images if i]
 
 if __name__ == "__main__":
     from get_category_members import get_uris
-    from retrieve import retrieve_category
+    from retrieve import retrieve_uris
+    from urllib import quote
+    PATH = os.path.join('/', 'tmp','panik')
     category = "Category:Clothing_illustrations"
+    category_path = os.path.join(PATH, quote(category))
     uris = get_uris(category)
-    retrieve_category(category, uris)
-    convert_images(category, '#fd297e')
+    convert_images(retrieve_uris(category_path, uris), '#fd297e')
 

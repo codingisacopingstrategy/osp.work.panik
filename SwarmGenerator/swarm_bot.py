@@ -9,11 +9,8 @@ from shoebot.core import CairoCanvas, CairoImageSink, NodeBot
 
 PATH = os.path.join('/', 'tmp','panik')
 
-def swarm_bot(category, text=None):
-    category = quote(category)
-    images_folder = os.path.join(PATH, category)
-    output_image = os.path.join(PATH, "%s.svg" % category)
-    imgs = [os.path.join(images_folder, i) for i in os.listdir(images_folder) if 'png' in i]
+def swarm_bot(output_image, images, text=None):
+    imgs = images
     
     sink = CairoImageSink(output_image, "svg", multifile = False)
     canvas = CairoCanvas(sink, enable_cairo_queue=True)
@@ -29,6 +26,7 @@ def swarm_bot(category, text=None):
     HEIGHT = 38 * scale
     WIDTH = 24 * scale
     bot.size(WIDTH, HEIGHT);
+    bot.background(None)
     
     if text:
         bot.align(bot.RIGHT)
@@ -56,13 +54,11 @@ def swarm_bot(category, text=None):
 
 if __name__ == "__main__":
     from get_category_members import get_uris
-    from retrieve import retrieve_category
+    from retrieve import retrieve_uris
     from convert_images import convert_images
-    
+    from urllib import quote
+    PATH = os.path.join('/', 'tmp','panik')
     category = "Category:Clothing_illustrations"
+    category_path = os.path.join(PATH, quote(category))
     uris = get_uris(category)
-    if len(uris) > 32:
-        uris = uris[:32]
-    retrieve_category(category, uris)
-    convert_images(category, colour="#fd297e")
-    swarm_bot(category, text="PANIK!")
+    swarm_bot(category_path + '.svg', convert_images(retrieve_uris(category_path, uris), '#fd297e'), text='Panik!')

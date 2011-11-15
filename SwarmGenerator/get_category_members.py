@@ -8,7 +8,7 @@ import json
 import urllib2
 from urllib import quote
 from flask import Flask, request, render_template, send_file, make_response
-from retrieve import retrieve_category
+from retrieve import retrieve_uris
 from swarm_bot import swarm_bot
 from convert_images import convert_images
 
@@ -58,6 +58,7 @@ def get_uris(category):
 
 @app.route("/<category>.svg", methods=['GET', 'POST'])
 def generate(category):
+    category_path = os.path.join(PATH, quote(category))
     colour = "000000"
     text_data = None
     if request.method == 'POST':
@@ -66,14 +67,15 @@ def generate(category):
     uris = get_uris(category)
     if len(uris) > 32:
         uris = uris[:32]
-    retrieve_category(category, uris)
-    convert_images(category, colour=colour)
-    swarm_bot(category, text=text_data)
-    file_path = os.path.join(PATH, "%s.svg" % quote(category))
+    output_file = category_path + '.svg'
+    files = retrieve_uris(category_path, uris)
+    swarm_bot(
+              output_file, convert_images(
+                                          files, colour=colour), text_data)
     #TODO: Should log the data
     #print(file_path)
 
-    return send_file(file_path)
+    return send_file(output_file)
 
 @app.route("/")
 def hello():

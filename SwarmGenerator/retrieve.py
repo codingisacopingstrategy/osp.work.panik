@@ -5,25 +5,27 @@ import os
 import urllib
 
 class AppURLopener(urllib.FancyURLopener):
-    version = 'Ḿozilla/5.0'
+    version = 'Mozilla/5.0'
 
 urllib._urlopener = AppURLopener()
 
-PATH = os.path.join('/', 'tmp','panik')
-
-def retrieve_category(category, uris):
-    CATEGORYPATH = os.path.join(PATH, urllib.quote(category))
-    if not os.path.exists(CATEGORYPATH):
-        os.makedirs(CATEGORYPATH)
-    # Only download if no files downloaded yet:
-    if len(os.listdir(CATEGORYPATH)) == 0:
-        for uri in uris:
-            filename = uri.split("/")[-1]
-            path = os.path.join(CATEGORYPATH, filename)
-            urllib.urlretrieve(uri, path)
+def retrieve_uris(path, uris):
+    files = []
+    if not os.path.exists(path):
+        os.makedirs(path)
+    for uri in uris:
+        filename = uri.split("/")[-1]
+        output_file = os.path.join(path, filename)
+        if not os.path.exists(output_file):
+            urllib.urlretrieve(uri, output_file)
+        files.append(output_file)
+    return files
 
 if __name__ == "__main__":
     from get_category_members import get_uris
+    from urllib import quote
+    PATH = os.path.join('/', 'tmp','panik')
     category = "Category:Clothing_illustrations"
+    category_path = os.path.join(PATH, quote(category))
     uris = get_uris(category)
-    retrieve_category(category, uris)
+    retrieve_uris(category_path, uris)
