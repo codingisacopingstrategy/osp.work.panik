@@ -16,7 +16,7 @@ PATH = os.path.join('/', 'tmp','panik')
 app = Flask(__name__)
 
 def urlencode(s):
-    return quote(s)
+    return quote(s.encode('utf-8'))
 
 app.jinja_env.filters['urlencode'] = urlencode
 
