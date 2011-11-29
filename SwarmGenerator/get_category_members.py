@@ -41,6 +41,7 @@ def display(category):
         elif 'File' in i['title'] and 'jpg' in i['imageinfo'][0]['url']:
             files.append(i)
     except:
+        # this is bad an error should yield proper error output
         pass
     return render_template('view_basic.html', members=members, files=files, category=category)
 
@@ -56,25 +57,33 @@ def get_uris(category):
             pass
     return uris
 
+def setsize(size):
+    pass
+
 @app.route("/<category>.svg", methods=['GET', 'POST'])
 def generate(category):
     category_path = os.path.join(PATH, quote(category))
-    colour = "000000"
+    colour = "#000000"
     text_data = None
+    square = False
     if request.method == 'POST':
         colour = request.form['colour']
-        text_data = request.form['text']
+        # For the typographic style, everything becomes
+        # UPPERCASE:
+        text_data = request.form['text'].upper()
+        if request.form['mediatype'] == "cd":
+            square = True
+    
     uris = get_uris(category)
     if len(uris) > 32:
         uris = uris[:32]
-    output_file = category_path + '.svg'
+    
+    output_file = category_path + '.png'
     files = retrieve_uris(category_path, uris)
     swarm_bot(
               output_file, convert_images(
-                                          files, colour=colour), text_data)
-    #TODO: Should log the data
-    #print(file_path)
-
+                                          files, colour=colour), text_data, square)
+    
     return send_file(output_file)
 
 @app.route("/")
