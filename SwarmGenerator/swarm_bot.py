@@ -29,7 +29,7 @@ def swarm_bot(output_image, images, text=None, square=True):
     if square == True:
         HEIGHT = 24 * scale
     else:
-        HEIGHT = 24 * 2 ** 0.5 * scale
+        HEIGHT = int(24 * 2 ** 0.5 * scale)
     bot.size(WIDTH, HEIGHT);
     bot.background(None)
     

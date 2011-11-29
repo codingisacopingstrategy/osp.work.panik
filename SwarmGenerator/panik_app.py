@@ -84,7 +84,9 @@ def generate(category):
               output_file, convert_images(
                                           files, colour=colour), text_data, square)
     
-    return send_file(output_file)
+    response = make_response(send_file(output_file))
+    response.headers['Cache-Control'] = "no-cache"
+    return response
 
 @app.route("/")
 def hello():
