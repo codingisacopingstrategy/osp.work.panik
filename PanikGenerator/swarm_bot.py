@@ -1,79 +1,77 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import os
-import shoebot
-from urllib import quote
+import cairo
 from random import random
-from shoebot.core import CairoCanvas, CairoImageSink, NodeBot
 import svgwrite
 import base64
-import Image
+from PIL import Image
 
-PATH = os.path.join('/', 'tmp','panik')
+PATH = os.path.join('/', 'tmp', 'panik')
 
-def swarm_bot(output_image, images, text=None, size=("12cm","12cm"), square=True):
+
+def swarm_bot(output_image, images, text=None, size=("12cm", "12cm"), square=True):
     imgs = images
-    
+
     scale = 18
     upto = 32
     if len(imgs) < 32:
-        # If there are less than 32 images, repeated existing up until 32:
-        imgs = (32 / len(imgs)) * imgs + imgs[:(32 % len(imgs))]
-    
-    points = [((i**2 % 25), i**2 / 25) for i in range(0, upto)]
-    
+        # If there are less than 32 images, repeat existing up until 32:
+        imgs = (32 // len(imgs)) * imgs + imgs[:(32 % len(imgs))]
+    elif len(imgs) > 32:
+        imgs = imgs[:32]
+
+    points = [((i ** 2 % 25), i ** 2 // 25) for i in range(0, upto)]
+
     WIDTH = 24 * scale
     if square == True:
         HEIGHT = 24 * scale
     else:
         HEIGHT = int(24 * 2 ** 0.5 * scale)
 
-    sink = CairoImageSink("/tmp/dummyfile.png", "png")
-    canvas = CairoCanvas(sink, enable_cairo_queue=True)
-    bot = shoebot.core.NodeBot(canvas)
-    
+    # Create a pycairo context for text metrics
+    surface = cairo.ImageSurface(cairo.FORMAT_ARGB32, 1, 1)
+    ctx = cairo.Context(surface)
+
     svg = svgwrite.Drawing(output_image, size=(size[0], size[1]), profile='full', viewBox="0 0 %s %s" % (WIDTH, HEIGHT))
-    
+
     for i, img in enumerate(imgs):
         f = open(img, 'rb')
         im = Image.open(img)
-        img_data = "data:image/png;base64," + base64.b64encode(f.read())
+        img_data = "data:image/png;base64," + base64.b64encode(f.read()).decode('ascii')
         f.close()
-        svg.add(svg.image(href=img_data, insert=(points[i][0] * scale * random(), points[i][1] * scale), width=im.size[0], height=im.size[1]))
-    
-    bot.font("Reglo")
-    bot.fontsize(12)
-    
-    
+        svg.add(
+            svg.image(href=img_data, insert=(points[i][0] * scale * random(), points[i][1] * scale), width=im.size[0],
+                      height=im.size[1]))
+
     if text:
         # split into lines, ignore blank lines:
         texts = [i for i in text.splitlines() if i]
         nlines = len(texts)
         theight = HEIGHT * 0.9
         lineheight = theight / nlines
-        
+
         for i, text in enumerate(texts):
-            bot.align(bot.CENTER)
-            bot.font("Reglo")
-            bot.fontsize(lineheight)
-            otwidth, otheight = bot.textmetrics(text)
+            ctx.select_font_face("Reglo", cairo.FONT_SLANT_NORMAL, cairo.FONT_WEIGHT_BOLD)
+            ctx.set_font_size(lineheight)
+            extents = ctx.text_extents(text)
+            otwidth = extents.width
             twidth = WIDTH * 0.9
             factor = twidth / float(otwidth)
             svg.add(svg.text(text, insert=((1 / factor) * WIDTH * 0.05, lineheight * i + lineheight + 0.05 * HEIGHT),
                              font_family="Reglo", font_size=lineheight,
                              transform='scale(%s, 1)' % factor,
-                             #dominant_baseline = "text-after-edge"
                              ))
-    
+
     svg.save()
 
 
 if __name__ == "__main__":
-    from get_category_members import get_uris
+    from panik_app import get_uris
     from retrieve import retrieve_uris
     from convert_images import convert_images
     from urllib import quote
-    PATH = os.path.join('/', 'tmp','panik')
+    PATH = os.path.join('/', 'tmp', 'panik')
     category = "Category:Clothing_illustrations"
     category_path = os.path.join(PATH, quote(category))
     uris = get_uris(category)

@@ -37,12 +37,9 @@ First make sure you have installed the Reglo font (see below)
 
 Run these commands in a terminal window:
 
-    sudo apt-get install python-setuptools
-    sudo easy_install flask  
-    sudo easy_install svgwrite
-
-Install shoebot, follow the instructions at:  
-https://gitorious.org/shoebot/shoebot/blobs/master/README
+    python -m venv panik-env
+    source panik-env/bin/activate
+    pip install Flask pillow pycairo svgwrite
 
 To run the web interface, move into the folder where you downloaded the OSP files.
 Then:
